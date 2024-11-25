@@ -1,0 +1,16 @@
+#!/bin/bash
+
+flage=$(env | cut -d= -f1 | sed -n '/^B2RADB_HOME$/p')
+if [[ $flage ]]; then
+    echo "Every Thing are ok";
+    exit 0;
+fi
+
+B2RADB_HOME="$PWD/B2RADB_HOME"
+DB_SESSION_FILE="$PWD/session/database"
+
+echo "# ================== B2RADB_HOME ====================" >>  "$HOME/.bashrc"
+echo "export B2RADB_HOME=\"$B2RADB_HOME\";
+export DB_SESSION_FILE=\"$DB_SESSION_FILE\";
+" >> "$HOME/.bashrc"
+
