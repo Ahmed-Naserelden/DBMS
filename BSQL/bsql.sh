@@ -90,12 +90,12 @@ splitor(){
 }
 
 welcome (){
-    echo "Welcome to the Biruni Database (BSQL) monitor.  Commands end with ; or \g."
+    echo "Welcome to the Elshiekh Database (BSQL) monitor.  Commands end with ; or \g."
     echo "Your BSQL connection id is 1"
     echo "Server version: 1.0.0-0ubuntu0.24.11.24 (Ubuntu)"
     echo 
-    echo "Copyright (c) 2000, 2024, Biruni and/or its affiliates."
-    echo "BSQL is a registered trademark of BSQL Corporation and/or its"
+    echo "Copyright (c) 2024, 2024, Biruni and/or its affiliates."
+    echo "Elshiekh-SQL is a registered trademark of BSQL Corporation and/or its"
     echo "affiliates. Other names may be trademarks of their respective"
     echo "owners."
     echo 
@@ -106,7 +106,6 @@ welcome (){
 convert_to_array() {
     input="$1"
     IFS=' ' read -r -a array <<< "$input"
-    
     # Print the array as space-separated elements
     echo "${array[@]}"
 }
@@ -154,75 +153,46 @@ while true; do
 ######################################################### CODING ###########################################################################################################
 ############################################################################################################################################################################
 ############################################################################################################################################################################
-############################### Databases
-##1. craete DATABASE;
-    # momQuery="SELECT * FROM table where employee_id = 20;"
-    # echo $momQuery
+
     momQuery=$( splitor "${momQuery}" )
     momQuery=($( convert_to_array "${momQuery}" ))
-    # echo " ======== ${momQuery} ${momQuery[1]} ${momQuery[2]}"
+
+    for (( i=0; i < ${#momQuery[@]}; ++i )); do
+        word="${momQuery[i]}"
+        # echo "first char in word ${word:0:1}"
+        if [[ $word == \"*\" || $word == \'*\' ]]; then  
+            continue
+        fi
+        momQuery[$i]=$(echo "${momQuery[i]}" | tr '[:upper:]' '[:lower:]')
+    done
 
     if [[ "${momQuery[0]}" == "create" &&  "${momQuery[1]}" == "database" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/createdatabase.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "use" ]]; then
         connectToDB "${momQuery[1]}"
     elif [[ "${momQuery[0]}" == "drop" && "${momQuery[1]}" == "database" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/dropdatabase.sh "${momQuery[@]}";
-    
     elif [[ "${momQuery[0]}" == "delete" && "${momQuery[1]}" == "from" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/deletefromtable.sh "${momQuery[@]}";
     elif [[ "${momQuery[0]}" == "drop" && "${momQuery[1]}" == "table" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/droptable.sh "${momQuery[@]}";
-    
     elif [[ "${momQuery[0]}" == "update" ]]; then
-        # echo "${momQuery[@]}"
         ./BSQL/updatetable.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "show" &&  "${momQuery[1]}" == "databases" ]]; then
         listDB
     elif [[ "${momQuery[0]}" == "show" &&  "${momQuery[1]}" == "tables" ]]; then
         listTables  "${momQuery[2]}"
     elif [[ "${momQuery[0]}" == "create" &&  "${momQuery[1]}" == "table" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/createtable.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "select" ]]; then
-        echo "${momQuery[@]}"
         ./BSQL/select.sh "${momQuery[@]}"
-
     elif [[ "${momQuery[0]}" == "insert" && "${momQuery[1]}" == "into" ]]; then
-        # echo "From bsql.sh"
-        echo "${momQuery[@]}"
         ./BSQL/insert.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "clear" ]]; then
         clear
     else
         echo "${momQuery[0]}: command not found"; 
     fi
-
-##2. DROP DATABASE
-    
-
-##4. SHOW DATABASES
-    # if [[ $momQuery =~ "show databases;" ]]; then
-    #     # listDB
-    #     echo
-    # fi
-
-############################################################################################################################################################################
-############################################################################################################################################################################
-############################### Tables
-##1. CREATE TABLE
-
-##2. DROP TABLE
-
-##3. SELECT FROM TABLE
-
-##4. DELETE FROM TABLE
-
-##5. UPDATE TABLE
 
 done;
 }
