@@ -118,7 +118,7 @@ main (){
 welcome
 while true; do
     set -f
-    echo -n "Elshikh-SQL> " 
+    echo -n "isql> " 
     momQuery="";
     query=""
     read -e query
