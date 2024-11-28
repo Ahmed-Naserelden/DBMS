@@ -1,6 +1,17 @@
 #!/bin/bash
 source middleware/lowercase.sh
+source session/info.sh
 # B2RADB_HOME="/home/biruni/Downloads/ITI-Intake-45/Bash/DBMS/B2RADB_HOME"
+
+getTableColumns(){
+    DATABASE="$B2RADB_HOME/$1"
+    TABLE="$DATABASE/$2"
+    METADATA="$B2RADB_HOME/$1/.metadata/$2"
+
+    table_columns=($(awk -F : '{print $1}' $METADATA));
+
+    echo "${table_columns[@]}";
+}
 
 find_index(){
     ele=$1;
@@ -19,18 +30,22 @@ find_index(){
 }
 
 # function take parmenters as 
-# list_tables <database>
+# list_tables [database]
 listTables(){
     DATABASE="$B2RADB_HOME/$1"
+    if [[ ! $1 ]]; then
+        DATABASE="$B2RADB_HOME/$(current_user_db)"
+    fi
+
     # check DATABASE name is valid
     # ...
     if [[ ! -d $DATABASE ]]; then
         echo "$1 Database Not Exist";
         exit 1;
     fi
-    ls -1 $DATABASE
+    echo "$(ls -1 $DATABASE)"
 }
-
+# listTables hr
 # function take parmenters as 
 # createTable <data-base> <table-name> <col-1>2 <datatype-1> <col-2> <datatype-2> ... <col-n> <datatype-n>
 # col 1 will be primary key by default
@@ -210,6 +225,8 @@ insertToTable(){
         echo "Primary Cant be null value."
         exit 1;
     fi
+    
+    # echo "primary key" $primary
 
     flage=$(cut -d: -f1 $TABLE | grep $primarykey);
 
@@ -222,6 +239,9 @@ insertToTable(){
     echo $RECORD >> $TABLE;
     exit 0;
 }
+
+# ret=$( insertToTable hr employees employee_id 23 first_name "Maqboul" salary 23434 );
+# echo $ret
 
 # function take parmenters as 
 # selectFromTable <database> <table> <col1> <col2> ... <colN> where <col> = 1 
@@ -304,11 +324,12 @@ selectFromTable(){
     
 
 }
-
+# selectFromTable hr employees
 # selectFromTable hr employees employee_id first_name where first_name "!=" "";
 
 # function take parmenters as 
-# insertToTable <data-base> <table-name> <conditions>
+#                                             
+# insertToTable <data-base> <table-name>  <co1> [ <, >, =, <=, >= ] <val>
 
 deleteFromTable(){
     DATABASE="$B2RADB_HOME/$1"
@@ -326,9 +347,63 @@ deleteFromTable(){
         echo "$2 Table Not Exist";
         exit 1;
     fi
-    # ...
-    qq
+    
+    condition_col=$3
+    operation=$4
+    condtion_val=$5
+
+
+    if [[ ! $3 || ! $4 || ! $5 ]]; then
+        echo "Not Valid Condition";
+        exit 1;
+    fi
+
+    table_columns=($(awk -F : '{print $1}' $METADATA));
+
+    #  check codition_col is valid column
+    #check column that used in where is correct
+    condition_col_idx=$(find_index "$condition_col" "${table_columns[@]}" );
+    if [[ $condition_col_idx == "-1" ]]; then 
+        echo "$col_par Columns Not Found.";
+        exit 1;
+    fi
+
+
+
+    awk -v cond_col_idx="${condition_col_idx}" \
+        -v op="$operation" \
+        -v con_val="$condtion_val"\
+        'BEGIN{
+            FS=":";
+            OFS=":";
+            split(updated_cols, cols, " ");
+            split(updated_vals, vals, " ");
+
+        }{
+            # Check condition on the specified column
+            condition_met = (op == "=" && $cond_col_idx == con_val) || 
+                    (op == "!=" && $cond_col_idx != con_val) || 
+                    (op == ">"  && $cond_col_idx > con_val)  || 
+                    (op == "<"  && $cond_col_idx < con_val);
+
+            if (condition_met && $cond_col_idx != "") {
+                next
+                # continue;
+                # # Update specified columns
+                # for (i in cols) {
+
+                #     $cols[i] = vals[i];
+                #     # print $cols[i]
+                # }
+            }
+
+            print 
+
+        }END{
+        }' $TABLE  > tmp_table && mv tmp_table "$TABLE";
 }
+
+# deleteFromTable hr employees employee_id "=" 20;
 
 # function take parmenters as 
 # updateTable <database> <table> <col 1> <val 1> ...  <col n> <val n> where col = val

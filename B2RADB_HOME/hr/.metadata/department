@@ -1,3 +1,3 @@
 department_id:number
 department_name:string
-manger_id:number
+mgr_id:number
