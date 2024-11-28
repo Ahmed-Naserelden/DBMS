@@ -1,10 +1,10 @@
 #!/bin/bash
 
 flage=$(env | cut -d= -f1 | sed -n '/^B2RADB_HOME$/p')
-# if [[ $flage ]]; then
-#     echo "Every Thing are ok";
-#     exit 0;
-# fi
+if [[ $flage ]]; then
+    echo "Every Thing are ok";
+    exit 0;
+fi
 
 B2RADB_HOME="$PWD/B2RADB_HOME"
 DB_SESSION_FILE="$PWD/session/database"
