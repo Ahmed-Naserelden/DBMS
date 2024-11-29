@@ -9,6 +9,11 @@ ret_tables=($(listTables $c_db) "back" )
 # echo "${ret_tables[@]}"
 echo "Select Table from $c_db Database";
 select tb in "${ret_tables[@]}"; do
+    
+    if [[ ! $tb ]]; then
+        echo "invalid number";
+        continue;
+    fi
 
     if [[ "$tb" == "back" ]]; then
         ./client/tableMenu.sh
@@ -21,55 +26,52 @@ select tb in "${ret_tables[@]}"; do
 
     for col in "${columns[@]}"; do
 
-        echo "Do You Need to update $col: "
-    
-        select flage in yes no; do
-    
-            case $flage in
-                yes )
-                    selectColumnsToUpdateAndItsNewValue+=("$col");
-                    read -p "Enter The new Value of $col: " newval
-                    selectColumnsToUpdateAndItsNewValue+=("$newval")
-                ;;
-            esac;
+        read -p "Do You Need to update $col, press(y/N): " flage
 
-            break;
-        done;
-    
+        if [[ $flage == "y" || $flage == "Y" ]]; then
+            selectColumnsToUpdateAndItsNewValue+=("$col");
+            read -p "Enter The new Value of $col: " newval
+            selectColumnsToUpdateAndItsNewValue+=("$newval")
+        fi
+
     done; 
 
 
     operations=("=" "!=" "<" ">" "<=" ">=");
-    echo "Have you a condition: "
+    read -p "Have you condition, press (y/N): " cond
+    if [[ "$cond" == "y" || "$cond" == "Y" ]] ; then
 
-    select cond in yes no; do
-        case $cond in
-            yes )
-                echo "Select columns you need in condition: "
-                select col in "${columns[@]}"; do
-                        echo "select condition operation: "
-                        select op in "${operations[@]}"; do
-                            
-                            read -p "Enter valid value suitable for condition: " value
+        echo "Select columns you need in condition: "
+        select col in "${columns[@]}"; do
+                if [[ ! $col ]]; then
+                    echo "invalid number ";
+                    continue;
+                fi
 
-                            query_result=$(updateTable $c_db $tb "${selectColumnsToUpdateAndItsNewValue[@]}" where $col $op $value );
+                echo "select condition operation: "
+                
+                select op in "${operations[@]}"; do
+                    
+                    if [[ ! $op ]]; then
+                        echo "invalid number ";
+                        continue;
+                    fi
+                    read -p "Enter valid value suitable for condition: " value
 
-                            exit 0;
+                    query_result=$(updateTable $c_db $tb "${selectColumnsToUpdateAndItsNewValue[@]}" where $col $op $value );
+                    echo "$query_result"
+                    exit 0;
 
-                            break;
-                        done
+                    break;
+                done
 
-                    break
-                done;
+            break
+        done;
+    fi
 
-            ;;
-        esac
-
-        break;
-    done;
-
-
-    query_result=$(selectFromTable $c_db $tb "${selectColumnsToUpdateAndItsNewValue[@]}")
+    query_result=$(updateTable $c_db $tb "${selectColumnsToUpdateAndItsNewValue[@]}")
+    
+    echo "$query_result"
     # ./session/formatTable.sh .tempo
     # echo "" > .tempo
 

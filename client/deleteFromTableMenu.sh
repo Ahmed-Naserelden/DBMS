@@ -9,6 +9,10 @@ ret_tables=($(listTables $c_db) "back" )
 # echo "${ret_tables[@]}"
 echo "Select Table from $c_db Database";
 select tb in "${ret_tables[@]}"; do
+    if [[ ! $tb ]]; then
+        echo "invalid number";
+        continue;
+    fi
 
     if [[ "$tb" == "back" ]]; then
         ./client/tableMenu.sh
@@ -22,6 +26,10 @@ select tb in "${ret_tables[@]}"; do
     operations=("=" "!=" "<" ">" "<=" ">=");
     echo "Select columns you need in condition: "
     select col in "${columns[@]}"; do
+            if [[ ! $col ]]; then
+                echo "invalid number ";
+                continue;
+            fi
             condition+=("$col");
             echo "select condition operation: "
             select op in "${operations[@]}"; do
@@ -30,6 +38,7 @@ select tb in "${ret_tables[@]}"; do
                     echo "Enter valid $op"
                     continue
                 fi;
+                
                 condition+=("$op")
                 read -p "Enter valid value suitable for condition: " value
                 condition+=("$value")

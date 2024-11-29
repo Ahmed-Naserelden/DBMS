@@ -51,7 +51,14 @@ select option in "${display_table_menu[@]}"; do
 		;; 
 
 		"SQL Mode")
-			echo "soon v2.1 ...";
+			echo "write query in single line."; 
+            read -p "isql> " query
+            if [[ -z $query ]]; then
+                continue;
+            fi
+            rest=$(echo "$query" | ./BSQL/bsql.sh | tail +10);
+            echo "$rest";
+			# echo "soon v2.1 ...";
 		;;
 			
 		"Back")

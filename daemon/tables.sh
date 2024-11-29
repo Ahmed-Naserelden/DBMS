@@ -68,14 +68,28 @@ createTable(){
     # ...
     ###################################################
 
+    declare -A column_exist
+
     touch $TABLE
     touch $METADATA
 
+
     HEADER="";
+
 
     for(( i=3; i <= $#; i+=2)); do
         column=$(lowercase ${@:i:1})
         datatype=$(lowercase ${@:i+1:1});
+
+        if [[ "${column_exist[$column]}" == "1" ]]; then
+            rm $TABLE
+            rm $METADATA
+            echo "$column Column exists before."
+            exit 2;
+        fi
+
+        column_exist[$column]="1";
+
         echo $column:$datatype >> $METADATA;
     
         if [[ $HEADER != "" ]]; then
@@ -140,9 +154,10 @@ check_column_value(){
             case $value in
             ''|*[!0-9]*)
                 echo "Invalid Value For $column_name Column(data-type: $column_data_type)";
-                exit 1;
+                exit 45;
             ;;
             esac
+            exit 0;
         ;;
         'string' )
             echo "String";
@@ -436,10 +451,26 @@ updateTable(){
         col_par=${@:i:1}
         value=${@:i+1:1};
 
+
         if [[ $col_par == "where" ]]; then
             condition=$(( i + 1));
             break;
         fi
+
+        # check datatype of columns
+        # 1. check columns & its data types
+        # echo " check columns "
+        col_val_are_valid=$(check_column_value $1 $2 $col_par $value);
+        # echo " result = > > > $col_val_are_valid"
+        status=$?
+        echo "ret = $status"
+        if [[ $status -ne 0 ]]; then
+        
+            echo "error in data type: $col_par $value"
+            # echo $col_val_are_valid
+            exit 1;
+        fi
+
         idx=$(find_index "$col_par" "${table_columns[@]}");
 
         if [[ $idx == "-1" ]]; then 

@@ -10,6 +10,11 @@ ret_tables=($(listTables $c_db) "back" )
 echo "Select Table from $c_db Database";
 select tb in "${ret_tables[@]}"; do
 
+    if [[ ! $tb ]]; then
+        echo "invalid number";
+        continue;
+    fi
+
     if [[ "$tb" == "back" ]]; then
         ./client/tableMenu.sh
         break;
@@ -21,32 +26,36 @@ select tb in "${ret_tables[@]}"; do
 
     for col in "${columns[@]}"; do
 
-        echo "Do You Need $col: "
-    
-        select flage in yes no; do
-    
-            case $flage in
-                yes )
-                    selectColumns+=("$col");
-                ;;
-            esac;
+        read -p "do you need $col, press (y/N): " flage
 
-            break;
-        done;
+        if [[ $flage == "y" || $flage == "Y" ]]; then
+            selectColumns+=("$col");
+        fi
     
     done; 
 
 
     operations=("=" "!=" "<" ">" "<=" ">=");
-    echo "Have you condition: "
+    
 
-    select cond in yes no; do
-        case $cond in
-            yes )
+    read -p "Have you condition, press (y/N): " cond
+
+    if [[ "$cond" == "y" || "$cond" == "Y" ]] ; then
                 echo "Select columns you need in condition: "
                 select col in "${columns[@]}"; do
+
+                        if [[ ! $col ]]; then
+                            echo "invalid number ";
+                            continue;
+                        fi
+
                         echo "select condition operation: "
                         select op in "${operations[@]}"; do
+
+                            if [[ ! $op ]]; then
+                                echo "invalid number ";
+                                continue;
+                            fi
                             
                             read -p "Enter valid value suitable for condition: " value
 
@@ -61,16 +70,11 @@ select tb in "${ret_tables[@]}"; do
                     break
                 done;
 
-            ;;
-        esac
-
-        break;
-    done;
-
+    fi
 
     query_result=$(selectFromTable $c_db $tb "${selectColumns[@]}" > .tempo )
     ./session/formatTable.sh .tempo
     echo "" > .tempo
-
+    break;
 done;
 

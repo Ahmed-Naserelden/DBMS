@@ -10,6 +10,11 @@ ret_tables=($(listTables $c_db) "back" )
 echo "Select Table from $c_db Database";
 select tb in "${ret_tables[@]}"; do
 
+    if [[ ! $tb ]]; then
+        echo "invalid number";
+        continue;
+    fi
+
     if [[ "$tb" == "back" ]]; then
         ./client/tableMenu.sh
         break;
@@ -27,10 +32,13 @@ select tb in "${ret_tables[@]}"; do
         columnsAndValuesToInsert+=("$col" "$value")
     
     done; 
+    # echo "Do you want insert new record ?"
     # echo "${columnsAndValuesToInsert[@]}"
     query_result=$(insertToTable $c_db $tb "${columnsAndValuesToInsert[@]}")
+    echo "$query_result"
     # ./session/formatTable.sh .tempo
     # echo "" > .tempo
+    break;
 
 done;
 

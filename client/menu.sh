@@ -13,11 +13,8 @@ clear
 # insertToTable hr employees employee_id 19 salary 58925 
 
 echo "########################################################################################"
-echo "################################# Welcome to DBMS ######################################"
+echo "################################# Welcome $USER to DBMS ###############################"
 echo "########################################################################################"
-echo
-
-
 
 
 PS3="Choose an option : " 
@@ -28,6 +25,12 @@ select option in "${display_menu[@]}"; do
     case $option in
         "Create Database")
             read -p "Please Enter Database Name : " DB_NAME
+            
+            if [[ -z "$tb_name" ]]; then
+                echo "DB name required"
+                continue;
+            fi
+
             createDB $DB_NAME
         ;;
         "List Databases")
@@ -40,7 +43,17 @@ select option in "${display_menu[@]}"; do
             ./client/dropDBMenu.sh
             ;;
         "SQL Mode")
-            echo "soon v2.1 ...";
+            echo "write query in single line."; 
+            read -p "isql> " query
+            if [[ -z $query ]]; then
+                continue;
+            fi
+
+            rest=$(echo "$query" | ./BSQL/bsql.sh | tail +12);
+            echo "$rest";
+
+            # echo "soon v2.1 ...";
+            # echo "but if you need to run sql queries run $ './run.sh'"
             ;;
         "Exit")
             break
@@ -49,23 +62,5 @@ select option in "${display_menu[@]}"; do
             echo UNKNOWN USER
         ;;
     esac
-done
-
-
-
-
-    # if [[ "$option" ==  "Create Database" ]]; then
-    #     echo ""
-    # elif [[ "$option" == "Connect To Database" ]]; then
-    #     echo ""
-    # elif [[ "$option" == "SQL Mode"  ]]; then
-    #     echo ""
-    # elif [[ "$option" == "Drop DB" ]]; then
-    #     echo ""
-    # elif [[ "$option" == "Exit" ]]; then
-    #     echo ""
-    # else
-    #     echo ""
-    # fi
-
+done;
 

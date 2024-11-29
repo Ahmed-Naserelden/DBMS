@@ -111,17 +111,22 @@ convert_to_array() {
 }
 
 main (){
-
-    HISTFILE="~/.bsql_history"  # File to store command history
-    touch "$HISTFILE"         # Ensure the history file exists
-    history -r "$HISTFILE"    # Load the history file
 welcome
 while true; do
-    set -f
+    # set -f
     echo -n "isql> " 
     momQuery="";
     query=""
-    read -e query
+    # read -e query
+
+    read -e query || break  # Break on EOF
+
+
+    if [[ -z $query ]]; then
+        continue
+    fi
+
+
     if [[ $query == "" ]]; then
         continue;
     fi
