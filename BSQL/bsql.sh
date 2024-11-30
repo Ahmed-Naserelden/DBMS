@@ -189,9 +189,24 @@ while true; do
     elif [[ "${momQuery[0]}" == "update" ]]; then
         ./BSQL/updatetable.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "show" &&  "${momQuery[1]}" == "databases" ]]; then
-        listDB
+        
+
+        echo "Databases" > .tempo
+
+        ret_tables=$(listDB >> .tempo);
+
+        ./session/formatTable.sh .tempo
+        echo "" > .tempo
+
+
     elif [[ "${momQuery[0]}" == "show" &&  "${momQuery[1]}" == "tables" ]]; then
-        listTables  "${momQuery[2]}"
+        #
+        echo "Tables" > .tempo
+        ret_tables=$(listTables "${momQuery[2]}" >> .tempo);
+
+        ./session/formatTable.sh .tempo
+        echo "" > .tempo
+
     elif [[ "${momQuery[0]}" == "create" &&  "${momQuery[1]}" == "table" ]]; then
         ./BSQL/createtable.sh "${momQuery[@]}"
     elif [[ "${momQuery[0]}" == "select" ]]; then
