@@ -60,8 +60,9 @@ select tb in "${ret_tables[@]}"; do
                             read -p "Enter valid value suitable for condition: " value
 
                             query_result=$(selectFromTable $c_db $tb "${selectColumns[@]}" where $col $op $value > .tempo )
-    ./session/formatTable.sh .tempo
-    echo "" > .tempo
+                            ./session/formatTable.sh .tempo
+                            echo "" > .tempo
+                            
                             exit 0;
 
                             break;

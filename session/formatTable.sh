@@ -22,7 +22,7 @@ IFS=':' read -r -a columns <<< "$header"
 # Calculate the maximum width for each column
 max_width=()
 for col in "${columns[@]}"; do
-    max_width+=($(echo "$col" | wc -c))
+    max_width+=($(( $(echo "$col" | wc -c) + 10)))
 done
 
 # Read the remaining lines to find the maximum length in each column
@@ -36,39 +36,53 @@ tail -n +2 "$input_file" | while IFS=':' read -r -a values; do
     done
 done
 
+# Define the gray color and reset codes
+GRAY="\033[2m"
+RESET="\033[0m"
+
+GRAY="\033[33m"
+RESET="\033[0m"
+
 # Print the table header
-printf "+"
+printf "${GRAY}+"
 for width in "${max_width[@]}"; do
-    printf "%-${width}s+"  # Dynamic width for each column
+    # printf "%-${width}s+" ""  # Dynamic width for each column
+    printf "%-${width}s+" "" | sed 's/         /----------/g' | tr ' ' '-'
+
 done
-echo
+printf "${RESET}\n"
 
 # Print column names with dynamic width
-printf "|"
+printf "${GRAY}|"
 for i in "${!columns[@]}"; do
     printf " %-${max_width[$i]}s |" "${columns[$i]}"
 done
-echo
+printf "${RESET}\n"
 
 # Print the separator line
-printf "+"
+printf "${GRAY}+"
 for width in "${max_width[@]}"; do
-    printf "%-${width}s+"  # Dynamic width for each column
+    # printf "%-${width}s+" ""  # Dynamic width for each column
+    printf "%-${width}s+" "" | sed 's/         /----------/g' | tr ' ' '-'
+
 done
-echo
+printf "${RESET}\n"
 
 # Read the remaining lines from the file and format the data
 tail -n +2 "$input_file" | while IFS=':' read -r -a values; do
-    printf "|"
+    printf "${GRAY}|"
     for i in "${!values[@]}"; do
         printf " %-${max_width[$i]}s |" "${values[$i]}"
     done
-    echo
+    printf "${RESET}\n"
 done
 
 # Print the table footer
-printf "+"
+printf "${GRAY}+"
 for width in "${max_width[@]}"; do
-    printf "%-${width}s+"  # Dynamic width for each column
+    # printf "%-${width}s+" "" | tr ' ' '-'  # Dynamic width for each column
+    printf "%-${width}s+" "" | sed 's/         /----------/g' | tr ' ' '-'
 done
-echo
+printf "${RESET}\n"
+
+# select employee_id, first_name, salary from employees where first_name != ''

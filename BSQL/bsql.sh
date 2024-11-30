@@ -90,17 +90,19 @@ splitor(){
 }
 
 welcome (){
-    echo "Welcome to the Elshiekh Database (BSQL) monitor.  Commands end with ; or \g."
-    echo "Your BSQL connection id is 1"
-    echo "Server version: 1.0.0-0ubuntu0.24.11.24 (Ubuntu)"
-    echo 
-    echo "Copyright (c) 2024, 2024, Biruni and/or its affiliates."
-    echo "Elshiekh-SQL is a registered trademark of BSQL Corporation and/or its"
-    echo "affiliates. Other names may be trademarks of their respective"
-    echo "owners."
-    echo 
-    echo "Type 'help;' or '\h' for help. Type '\c' to clear the current input statement."
-    echo 
+    # Brown color for the entire output
+    brown='\033[38;5;94m'  # ANSI color code for brown
+    blue='\033[34m'        # ANSI color code for blue
+    reset='\033[0m'        # Reset color to default
+    bold='\033[1m'         # Bold text
+    # Display the welcome message with colored text
+    echo -e "${brown}Welcome to the Out Database (ISQL) monitor.  Commands end with ; or \g."
+    echo -e "Your ISQL connection id is 1"
+    echo -e "Server version: 1.0.0-0ubuntu0.24.11.24 (Ubuntu)"
+    echo -e "\nCopyright (c) 2024, 2024, ${blue}${bold}Biruni${reset} ${brown}and/or its affiliates."
+    echo -e "${brown}ISQL is a registered trademark of ISQL Corporation and/or its"
+    echo -e "${brown}affiliates. Other names may be trademarks of their respective"
+    echo -e "${brown}owners.${reset}\n"
 }
 
 convert_to_array() {
@@ -113,14 +115,17 @@ convert_to_array() {
 main (){
 welcome
 while true; do
-    # set -f
-    echo -n "isql> " 
+    set -f
+    # echo -n "isql> "
+    echo -n -e "\033[1;34misql> \033[0m" 
     momQuery="";
     query=""
     # read -e query
 
     read -e query || break  # Break on EOF
 
+    # echo "$query"
+    # set +f
 
     if [[ -z $query ]]; then
         continue
@@ -137,7 +142,7 @@ while true; do
         read -e query
     done;
 
-    set +f
+    # set +f
     
     momQuery="$momQuery $query";
     

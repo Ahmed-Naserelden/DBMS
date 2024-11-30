@@ -17,14 +17,26 @@ find_index(){
     ele=$1;
     shift;
     arr=$@;
-    for ((i=1; i <= $#; ++i)); do
-        vcol=$(echo "${arr[@]}" | cut -d ' ' -f$i);
-        if [[ "$vcol" == "$ele" ]]; then
-            # Exit after finding the element
-            echo "$i";
-            exit 0;
-        fi
-    done
+
+    if [[ "$ele" == "*" ]]; then
+        IDXS=();
+        for ((i=1; i <= $#; ++i)); do
+            IDXS+=("$i");
+        done
+
+        echo "${IDXS[@]}";
+        exit 0;
+
+    else
+        for ((i=1; i <= $#; ++i)); do
+            vcol=$(echo "${arr[@]}" | cut -d ' ' -f$i);
+            if [[ "$vcol" == "$ele" ]]; then
+                # Exit after finding the element
+                echo "$i";
+                exit 0;
+            fi
+        done
+    fi
     echo "-1"
     exit 1;
 }
@@ -266,7 +278,10 @@ selectFromTable(){
     METADATA="$B2RADB_HOME/$1/.metadata/$2"
     
     condition="-1";
-
+    # select * from employees;
+    # set -f
+    # echo "=== $3";
+    # set +f
     column_indexes=();
     table_columns=($(awk -F : '{print $1}' $METADATA));
 
@@ -277,13 +292,14 @@ selectFromTable(){
             condition=$(( i + 1));
             break;
         fi
-        idx=$(find_index "$col_par" "${table_columns[@]}");
+        idx=($(find_index "$col_par" "${table_columns[@]}"));
+        # echo "${idx[@]}"
 
         if [[ $idx == "-1" ]]; then 
             echo "$col_par Columns Not Found.";
             exit 1;
         fi
-        column_indexes+=($idx);
+        column_indexes+=("${idx[@]}");
     }
 
     if [[ $condition != "-1" ]]; then # that is mean query containes where condition
@@ -301,6 +317,8 @@ selectFromTable(){
 
         # echo "where $condition_col $operation $condtion_val;";
     fi    
+
+        # echo "Operation $operation"
         awk -v cond_col_idx="${condition_col_idx}" -v op="$operation" -v con_val="$condtion_val" 'BEGIN{
             FS=":";
             OFS=" ";
@@ -313,27 +331,40 @@ selectFromTable(){
                 next;
             }
 
-            if(op == "=" || op == "<=" || op == ">="){
-                if($cond_col_idx == con_val){
-                    print
-                }
-            }
-            else if(op == ">" || op == ">="){
-                if($cond_col_idx > con_val){
-                    print
-                }
-            }
-            else if(op == "<" || op == "<="){
-                if($cond_col_idx < con_val){
-                    print
-                }
-            }else if (op == "!="){
-                if($cond_col_idx != con_val){
-                    print
-                }
-            }else{
+            # Check condition on the specified column
+            condition_met = (op == "=" && $cond_col_idx == con_val) || 
+                    (op == "!=" && $cond_col_idx != con_val) || 
+                    (op == ">"  && $cond_col_idx > con_val)  || 
+                    (op == "<="  && $cond_col_idx <= con_val)  || 
+                    (op == ">="  && $cond_col_idx >= con_val)  || 
+                    (op == "<"  && $cond_col_idx < con_val) || (op == "");
+
+            if (condition_met) {
                 print
             }
+
+
+            # if(op == "=" || op == "<=" || op == ">="){
+            #     if($cond_col_idx == con_val){
+            #         print
+            #     }
+            # }
+            # else if(op == ">" || op == ">="){
+            #     if($cond_col_idx > con_val){
+            #         print
+            #     }
+            # }
+            # else if(op == "<" || op == "<="){
+            #     if($cond_col_idx < con_val){
+            #         print
+            #     }
+            # }else if (op == "!="){
+            #     if($cond_col_idx != con_val){
+            #         print
+            #     }
+            # }else{
+            #     print
+            # }
         }END{
         }' $TABLE | cut -d: -f"${column_indexes[*]}"
     
@@ -395,10 +426,16 @@ deleteFromTable(){
             split(updated_vals, vals, " ");
 
         }{
+            if (NR == 1){
+                print 
+                next;
+            }
             # Check condition on the specified column
             condition_met = (op == "=" && $cond_col_idx == con_val) || 
                     (op == "!=" && $cond_col_idx != con_val) || 
                     (op == ">"  && $cond_col_idx > con_val)  || 
+                    (op == "<="  && $cond_col_idx <= con_val)  || 
+                    (op == ">="  && $cond_col_idx >= con_val)  || 
                     (op == "<"  && $cond_col_idx < con_val);
 
             if (condition_met && $cond_col_idx != "") {
@@ -463,7 +500,7 @@ updateTable(){
         col_val_are_valid=$(check_column_value $1 $2 $col_par $value);
         # echo " result = > > > $col_val_are_valid"
         status=$?
-        echo "ret = $status"
+        # echo "ret = $status"
         if [[ $status -ne 0 ]]; then
         
             echo "error in data type: $col_par $value"
@@ -508,13 +545,19 @@ updateTable(){
             split(updated_vals, vals, " ");
 
         }{
+            if (NR == 1){
+                print 
+                next;
+            }
             # Check condition on the specified column
             condition_met = (op == "=" && $cond_col_idx == con_val) || 
                     (op == "!=" && $cond_col_idx != con_val) || 
                     (op == ">"  && $cond_col_idx > con_val)  || 
-                    (op == "<"  && $cond_col_idx < con_val);
+                    (op == "<="  && $cond_col_idx <= con_val)  || 
+                    (op == ">="  && $cond_col_idx >= con_val)  || 
+                    (op == "<"  && $cond_col_idx < con_val) || (op == "");
 
-            if (condition_met && $cond_col_idx != "") {
+            if (condition_met) {
                 # Update specified columns
                 for (i in cols) {
 

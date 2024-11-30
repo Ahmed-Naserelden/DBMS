@@ -16,7 +16,7 @@ echo "##########################################################################
 echo
 
 
-display_table_menu=("Create Table" "List Tables" "Drop Table" "Insert into Table" "Select From Table" "Delete From Table" "Update Table" "SQL Mode" "Back")
+display_table_menu=("List Tables" "Select From Table" "Insert into Table" "Update Table" "SQL Mode" "Delete From Table" "Create Table" "Drop Table" "Back")
 
 select option in "${display_table_menu[@]}"; do 
 
@@ -56,7 +56,7 @@ select option in "${display_table_menu[@]}"; do
             if [[ -z $query ]]; then
                 continue;
             fi
-            rest=$(echo "$query" | ./BSQL/bsql.sh | tail +10);
+            rest=$(echo "$query" | ./BSQL/bsql.sh | tail +11);
             echo "$rest";
 			# echo "soon v2.1 ...";
 		;;

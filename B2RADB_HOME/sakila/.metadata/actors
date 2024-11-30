@@ -1,0 +1,3 @@
+actor_id:number
+actor_name:string
+salary:number

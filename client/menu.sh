@@ -19,47 +19,44 @@ echo "##########################################################################
 
 PS3="Choose an option : " 
 
-display_menu=("Create Database" "List Databases" "Connect To Database" "Drop DB" "SQL Mode" "Exit")
+display_menu=("Connect To Database" "List Databases" "Create Database"  "Drop DB" "Clear" "Exit")
 
 select option in "${display_menu[@]}"; do 
     case $option in
         "Create Database")
             read -p "Please Enter Database Name : " DB_NAME
             
-            if [[ -z "$tb_name" ]]; then
+            if [[ -z "$DB_NAME" ]]; then
                 echo "DB name required"
                 continue;
             fi
 
-            createDB $DB_NAME
+            res=$(createDB $DB_NAME);
+            echo "$res";
         ;;
+
         "List Databases")
             ./client/listDBMenu.sh
-            ;;
+        ;;
+        
         "Connect To Database")
             ./client/connectToDB.sh
         ;;
+
         "Drop DB")
             ./client/dropDBMenu.sh
-            ;;
-        "SQL Mode")
-            echo "write query in single line."; 
-            read -p "isql> " query
-            if [[ -z $query ]]; then
-                continue;
-            fi
+        ;;
 
-            rest=$(echo "$query" | ./BSQL/bsql.sh | tail +12);
-            echo "$rest";
+        "Clear")
+            clear;
+        ;;
 
-            # echo "soon v2.1 ...";
-            # echo "but if you need to run sql queries run $ './run.sh'"
-            ;;
         "Exit")
-            break
+            
+            exit 0;
             ;;
         *)  
-            echo UNKNOWN USER
+            continue;
         ;;
     esac
 done;
