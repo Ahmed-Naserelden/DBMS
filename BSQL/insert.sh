@@ -21,10 +21,10 @@ for ((i=3; i < $finish ; ++i)){
     query+=("$col" "$val");
     # echo $col $val
 }
-echo "${query[@]}"
+# echo "${query[@]}"
 
 ret=$( insertToTable "${query[@]}" );
-echo "$ret"
+# echo "$ret"
 
 
 # insert into employees (employee_id, first_name,salary) values (23, "Maqboul", 23434);

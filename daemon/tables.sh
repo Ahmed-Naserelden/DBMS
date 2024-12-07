@@ -55,7 +55,14 @@ listTables(){
         echo "$1 Database Not Exist";
         exit 1;
     fi
-    echo "$(ls -1 $DATABASE)"
+
+    if [[ $(current_user_db) == "" ]]; then
+        echo "USE DB FIRST";
+    
+    else
+        echo "$(ls -1 $DATABASE)"
+    fi
+
 }
 # listTables hr
 # function take parmenters as 
